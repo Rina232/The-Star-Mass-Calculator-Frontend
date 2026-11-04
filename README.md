@@ -1,17 +1,13 @@
-# Спектральные классы - фронтенд (лабораторная 5)
+# The Star Mass Calculator (Frontend)
 
-SPA на React, TypeScript, Vite и React-Bootstrap. Данные берутся только из mock-объектов (`src/modules/mock.ts`), без бэкенда, БД и S3. Redux и Context не используются.
+SPA на React, TypeScript, Vite и React-Bootstrap. Данные берутся только из mock-объектов (`src/modules/mock.ts`)
 
-## Запуск
-
+Для запуска
 ```bash
 npm install
 npm run dev
 ```
-
-Приложение: http://localhost:3001 (порт 3000 занят бэкендом).
-
-Файлы `star-class-default.jpg` и `star-class-default.mp4` должны лежать в `public/default/`.
+Приложение будет доступно по ссылке: http://localhost:3001
 
 ## Меню
 
@@ -20,11 +16,10 @@ npm run dev
 | Пункт | Маршрут | Состояние |
 |---|---|---|
 | Лента | `/feed` | доступен |
-| Добавить | `/add` | недоступен (заглушка) |
+| Добавить | `/add` | заглушка |
 | Каталог | `/catalog` | доступен |
-| Вход | `/login` | недоступен (заглушка) |
+| Вход | `/login` | заглушка |
 
-Активный пункт подсвечивается золотым цветом.
 
 ## Страницы
 
@@ -33,9 +28,9 @@ npm run dev
 Без `id` открывается первая опубликованная услуга, с `id` - выбранная. Если услуги нет или она не опубликована, показывается сообщение и кнопка «В каталог».
 
 Элементы:
-- видео на весь экран (автозапуск, без звука, по кругу); если `videoUrl` пустой или не загрузился, воспроизводится видео по умолчанию;
-- изображение-постер; если `imageUrl` пустой или не загрузился, показывается изображение по умолчанию;
-- справа: иконка лайка с количеством, масса (M⨀), светимость (L⨀);
+- видео на весь экран; если `videoUrl` пустой или не загрузился, воспроизводится видео по умолчанию;
+- изображение; если `imageUrl` пустой или не загрузился, показывается изображение по умолчанию;
+- справа: иконка лайка с количеством, средняя масса (M⨀), средняя светимость (L⨀);
 - кнопка «Следующий» (стрелка вниз) - переход к следующей опубликованной услуге по порядку, после последней - к первой;
 - внизу: название и описание, кнопка «ещё…» / «свернуть» разворачивает и сворачивает описание.
 
@@ -49,41 +44,3 @@ npm run dev
 - если ничего не найдено, выводится «По заданным параметрам ничего не найдено».
 
 Услуги в статусах `draft` и `deleted` не отображаются.
-
-## Структура
-
-```
-src/
-  main.tsx, App.tsx, AppLayout.tsx, Routes.ts, constants.ts
-  components/  BottomNavbar, StarClassCard, FilterForm, MediaImage, HeartIcon
-  pages/       FeedPage, CatalogPage
-  modules/     mock.ts, starClassesMock.ts
-  types/       starClass.ts
-  utils/       formatAstroNumber.ts, media.ts
-  styles/      app.css
-docs/          hardware-calculation.md
-```
-
-## Props компонентов
-
-| Компонент | Props |
-|---|---|
-| `StarClassCard` | `id`, `title`, `imageUrl`, `likeCount` |
-| `FilterForm` | `minValue`, `maxValue`, `onMinChange`, `onMaxChange`, `onSubmit` |
-| `MediaImage` | `src`, `alt`, `className` |
-| `HeartIcon` | `size` |
-
-## Используемые хуки
-
-| Хук | Где | Для чего |
-|---|---|---|
-| `useState` | FeedPage, CatalogPage | состояние описания, значения ползунков |
-| `useEffect` | FeedPage, CatalogPage | заголовок вкладки, сворачивание описания при смене услуги, синхронизация ползунков с адресом |
-| `useMemo` | FeedPage, CatalogPage | выбор услуги и фильтрация списка |
-| `useParams` | FeedPage | получение `id` из адреса |
-| `useNavigate` | FeedPage | переход к следующей услуге |
-| `useSearchParams` | CatalogPage | хранение фильтра в адресной строке |
-
-## Расчёт аппаратных требований
-
-См. `docs/hardware-calculation.md`.
