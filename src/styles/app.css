@@ -473,3 +473,146 @@ body,
     --bs-btn-border-radius: 6px;
     white-space: nowrap;
 }
+
+.toolbar .nav-link {
+    background: none;
+    border: 0;
+}
+
+.loading-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 8, 0.55);
+    color: var(--gold);
+}
+
+.like-btn {
+    padding: 0;
+    cursor: pointer;
+}
+
+.like-btn:disabled {
+    cursor: default;
+    opacity: 1;
+}
+
+.like-active {
+    color: var(--gold);
+    border-color: var(--gold);
+}
+
+.card-delete {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 3;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(10, 12, 30, 0.7);
+    color: var(--text-main);
+    font-size: 11px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.card-delete:hover {
+    color: #ff6b6b;
+    border-color: #ff6b6b;
+}
+
+.catalog-user {
+    margin: -6px 0 10px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-side);
+}
+
+.catalog-alert {
+    margin: 0 0 10px;
+    font-size: 12px;
+}
+
+.form-screen {
+    padding: 28px 18px 30px;
+}
+
+.form-title {
+    font-size: 26px;
+    font-weight: 700;
+    text-align: center;
+    margin: 0 0 18px;
+}
+
+.form-section {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.04em;
+    margin: 18px 0 10px;
+}
+
+.form-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group-dark {
+    margin-bottom: 12px;
+}
+
+.form-group-dark .form-label {
+    font-size: 11px;
+    color: var(--text-side);
+    margin-bottom: 4px;
+}
+
+.form-group-dark .form-control {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    font-size: 13px;
+}
+
+.form-group-dark .form-control:focus {
+    border-color: var(--gold);
+    box-shadow: none;
+}
+
+.form-group-dark .form-control:disabled {
+    opacity: 0.6;
+}
+
+.form-submit {
+    width: 100%;
+    margin-top: 6px;
+}
+
+.form-switch {
+    display: block;
+    margin: 14px auto 0;
+}
+
+.draft-preview {
+    margin-bottom: 12px;
+}
+
+.draft-preview-img {
+    width: 100%;
+    max-height: 160px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+}
+
+.draft-note {
+    margin: 8px 0 0;
+    font-size: 11px;
+    color: var(--text-side);
+}

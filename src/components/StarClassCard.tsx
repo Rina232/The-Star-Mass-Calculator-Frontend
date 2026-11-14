@@ -10,9 +10,10 @@ interface Props {
     title: string;
     imageUrl: string;
     likeCount: number;
+    onDelete?: () => void;
 }
 
-export const StarClassCard: FC<Props> = ({ id, title, imageUrl, likeCount }) => {
+export const StarClassCard: FC<Props> = ({ id, title, imageUrl, likeCount, onDelete }) => {
     const feedLink = `${ROUTES.FEED}/${id}`;
 
     return (
@@ -24,11 +25,16 @@ export const StarClassCard: FC<Props> = ({ id, title, imageUrl, likeCount }) => 
                     <span>{likeCount}</span>
                 </div>
             </Link>
+            {onDelete && (
+                <button type="button" className="card-delete" title="Удалить" aria-label="Удалить" onClick={onDelete}>
+                    ✕
+                </button>
+            )}
             <Card.Body className="card-body-overlay">
                 <Card.Title as="p" className="card-name">
                     {title}
                 </Card.Title>
-                <Button as={Link as never} to={feedLink} size="sm" className="btn-gold card-btn">
+                <Button as={Link} to={feedLink} size="sm" className="btn-gold card-btn">
                     Подробнее
                 </Button>
             </Card.Body>

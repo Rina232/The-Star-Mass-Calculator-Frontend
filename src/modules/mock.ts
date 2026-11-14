@@ -12,6 +12,8 @@ export const STAR_CLASSES_MOCK: StarClass[] = [
         mass: 25,
         luminosity: 80000,
         likeCount: 14,
+        createdAt: "2026-01-01T00:00:00.000Z",
+        publishedAt: "2026-01-02T00:00:00.000Z",
     },
     {
         id: 2,
@@ -24,6 +26,8 @@ export const STAR_CLASSES_MOCK: StarClass[] = [
         mass: 6,
         luminosity: 1000,
         likeCount: 9,
+        createdAt: "2026-01-01T00:00:00.000Z",
+        publishedAt: "2026-01-02T00:00:00.000Z",
     },
     {
         id: 3,
@@ -36,6 +40,8 @@ export const STAR_CLASSES_MOCK: StarClass[] = [
         mass: 1.7,
         luminosity: 20,
         likeCount: 21,
+        createdAt: "2026-01-01T00:00:00.000Z",
+        publishedAt: "2026-01-02T00:00:00.000Z",
     },
     {
         id: 4,
@@ -48,6 +54,8 @@ export const STAR_CLASSES_MOCK: StarClass[] = [
         mass: 1.3,
         luminosity: 6,
         likeCount: 5,
+        createdAt: "2026-01-01T00:00:00.000Z",
+        publishedAt: "2026-01-02T00:00:00.000Z",
     },
     {
         id: 5,
@@ -60,6 +68,8 @@ export const STAR_CLASSES_MOCK: StarClass[] = [
         mass: 1,
         luminosity: 1,
         likeCount: 33,
+        createdAt: "2026-01-01T00:00:00.000Z",
+        publishedAt: "2026-01-02T00:00:00.000Z",
     },
     {
         id: 6,
@@ -72,6 +82,8 @@ export const STAR_CLASSES_MOCK: StarClass[] = [
         mass: 0.75,
         luminosity: 0.4,
         likeCount: 12,
+        createdAt: "2026-01-01T00:00:00.000Z",
+        publishedAt: "2026-01-02T00:00:00.000Z",
     },
     {
         id: 7,
@@ -84,6 +96,8 @@ export const STAR_CLASSES_MOCK: StarClass[] = [
         mass: 0.3,
         luminosity: 0.04,
         likeCount: 18,
+        createdAt: "2026-01-01T00:00:00.000Z",
+        publishedAt: "2026-01-02T00:00:00.000Z",
     },
     {
         id: 8,
@@ -95,6 +109,8 @@ export const STAR_CLASSES_MOCK: StarClass[] = [
         mass: null,
         luminosity: null,
         likeCount: 0,
+        createdAt: "2026-01-01T00:00:00.000Z",
+        publishedAt: null,
     },
     {
         id: 9,
@@ -106,5 +122,7 @@ export const STAR_CLASSES_MOCK: StarClass[] = [
         mass: 0.05,
         luminosity: 0.0001,
         likeCount: 2,
+        createdAt: "2026-01-01T00:00:00.000Z",
+        publishedAt: null,
     },
 ];

@@ -1,13 +1,3 @@
-export type StarClassStatus = "draft" | "published" | "deleted";
+import type { StarClassResponseDto } from "../api/Api";
 
-export interface StarClass {
-    id: number;
-    title: string;
-    description: string | null;
-    status: StarClassStatus;
-    imageUrl: string;
-    videoUrl: string;
-    mass: number | null;
-    luminosity: number | null;
-    likeCount: number;
-}
+export type StarClass = StarClassResponseDto;

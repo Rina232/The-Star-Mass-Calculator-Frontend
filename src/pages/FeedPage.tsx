@@ -1,41 +1,52 @@
-import { useEffect, useMemo, useState, type FC, type SyntheticEvent } from "react";
+import { useEffect, useState, type FC, type SyntheticEvent } from "react";
 import { Button } from "react-bootstrap";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { HeartIcon } from "../components/HeartIcon";
 import { MediaImage } from "../components/MediaImage";
 import { DEFAULT_VIDEO_URL } from "../constants";
-import {
-    getFirstPublishedStarClass,
-    getNextPublishedStarClass,
-    getPublishedStarClassById,
-} from "../modules/starClassesMock";
+import { getFeedStarClass, likeStarClass } from "../slices/feedSlice";
 import { ROUTES } from "../Routes";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { formatAstroNumber } from "../utils/formatAstroNumber";
 import { resolveImageUrl, resolveVideoUrl } from "../utils/media";
 
 export const FeedPage: FC = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const dispatch = useAppDispatch();
+    const { current: starClass, notFound } = useAppSelector((state) => state.feed);
+    const isAuthenticated = useAppSelector((state) => state.user.isAuthenticated);
     const [expanded, setExpanded] = useState(false);
 
-    const starClass = useMemo(
-        () => (id ? getPublishedStarClassById(Number(id)) : getFirstPublishedStarClass()),
-        [id],
-    );
+    useEffect(() => {
+        if (id && starClass && String(starClass.id) === id) {
+            return;
+        }
+        dispatch(getFeedStarClass({ id: id ? Number(id) : undefined }));
+    }, [dispatch, id]);
 
     useEffect(() => {
         setExpanded(false);
         document.title = starClass ? `Лента - ${starClass.title}` : "Лента";
     }, [starClass]);
 
-    const handleNext = () => {
+    const handleNext = async () => {
         if (!starClass) {
             return;
         }
-        const next = getNextPublishedStarClass(starClass.id);
-        if (next) {
+        try {
+            const next = await dispatch(getFeedStarClass({ id: starClass.id, next: true })).unwrap();
             navigate(`${ROUTES.FEED}/${next.id}`);
+        } catch {
+            return;
         }
+    };
+
+    const handleLike = () => {
+        if (!starClass) {
+            return;
+        }
+        dispatch(likeStarClass({ id: starClass.id, like: starClass.isLiked === 1 ? 0 : 1 }));
     };
 
     const handleVideoError = (event: SyntheticEvent<HTMLVideoElement>) => {
@@ -48,10 +59,13 @@ export const FeedPage: FC = () => {
     };
 
     if (!starClass) {
+        if (!notFound) {
+            return <section className="feed-screen" />;
+        }
         return (
             <section className="empty-screen">
-                <p>Услуга не найдена.</p>
-                <Button as={Link as never} to={ROUTES.CATALOG} className="btn-gold">
+                <p>Спектральный класс не найден.</p>
+                <Button as={Link} to={ROUTES.CATALOG} className="btn-gold">
                     В каталог
                 </Button>
             </section>
@@ -60,6 +74,7 @@ export const FeedPage: FC = () => {
 
     const imageUrl = resolveImageUrl(starClass.imageUrl);
     const videoUrl = resolveVideoUrl(starClass.videoUrl);
+    const liked = starClass.isLiked === 1;
 
     return (
         <section className="feed-screen">
@@ -78,9 +93,15 @@ export const FeedPage: FC = () => {
             <MediaImage key={`poster-${starClass.id}`} className="feed-poster" src={starClass.imageUrl} alt={starClass.title} />
 
             <div className="feed-overlay-actions">
-                <div className="like-badge">
-                    <HeartIcon />
-                </div>
+                <button
+                    type="button"
+                    className={liked ? "like-badge like-btn like-active" : "like-badge like-btn"}
+                    aria-label={liked ? "Убрать лайк" : "Поставить лайк"}
+                    disabled={!isAuthenticated}
+                    onClick={handleLike}
+                >
+                    <HeartIcon filled={liked} />
+                </button>
                 <span className="icon-desc">{starClass.likeCount}</span>
 
                 <div className="icon-badge">M⨀</div>
@@ -104,7 +125,7 @@ export const FeedPage: FC = () => {
 
             <div className="feed-bottom-gradient">
                 <h1 className="feed-title">{starClass.title}</h1>
-                <p className={expanded ? "feed-desc feed-desc-open" : "feed-desc"}>{starClass.description}</p>
+                <p className={expanded ? "feed-desc feed-desc-open" : "feed-desc"}>{starClass.description ?? ""}</p>
                 <Button variant="link" className="desc-toggle" onClick={() => setExpanded((value) => !value)}>
                     {expanded ? "свернуть" : "ещё…"}
                 </Button>
