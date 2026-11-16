@@ -3,11 +3,6 @@ import type { UserResponseDto } from "./Api";
 
 const authHttp = axios.create({ baseURL: "/api/users", withCredentials: true });
 
-export const registerUser = async (username: string, password: string): Promise<UserResponseDto> => {
-    const response = await authHttp.post<UserResponseDto>("/register", { username, password });
-    return response.data;
-};
-
 export const loginUser = async (username: string, password: string): Promise<UserResponseDto> => {
     const response = await authHttp.post<UserResponseDto>("/login", { username, password });
     return response.data;

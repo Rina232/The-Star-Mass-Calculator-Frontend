@@ -1,7 +1,7 @@
-import { useEffect, useState, type ChangeEvent, type FC } from "react";
-import { Alert, Button, Form } from "react-bootstrap";
+import { useEffect, useMemo, useState, type ChangeEvent, type FC, type FormEvent } from "react";
+import { Alert } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { MediaImage } from "../components/MediaImage";
+import { DEFAULT_IMAGE_URL, DEFAULT_VIDEO_URL } from "../constants";
 import {
     clearDraftError,
     createDraftStarClass,
@@ -10,8 +10,33 @@ import {
 } from "../slices/draftSlice";
 import { ROUTES } from "../Routes";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { resolveImageUrl, resolveVideoUrl } from "../utils/media";
 
-const parseNumber = (value: string): number => Number(value.trim().replace(",", "."));
+const parseNumber = (value: string): number => Number(value.trim().replace(/\s/g, "").replace(",", "."));
+
+const PlusIcon: FC = () => (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path
+            d="M1 9.52662H18.9508M9.97538 1V18.0532"
+            stroke="#8CB4FF"
+            strokeOpacity="0.85"
+            strokeWidth="2"
+            strokeLinecap="round"
+        />
+    </svg>
+);
+
+const useFilePreview = (file: File | null): string | null => {
+    const url = useMemo(() => (file ? URL.createObjectURL(file) : null), [file]);
+    useEffect(() => {
+        return () => {
+            if (url) {
+                URL.revokeObjectURL(url);
+            }
+        };
+    }, [url]);
+    return url;
+};
 
 export const AddPage: FC = () => {
     const dispatch = useAppDispatch();
@@ -25,26 +50,25 @@ export const AddPage: FC = () => {
     const [mass, setMass] = useState("");
     const [luminosity, setLuminosity] = useState("");
 
+    const imagePreview = useFilePreview(image);
+    const videoPreview = useFilePreview(video);
+
     useEffect(() => {
-        document.title = "Добавление спектрального класса";
+        document.title = "Создание черновика класса";
         dispatch(clearDraftError());
         dispatch(getDraftStarClass());
     }, [dispatch]);
 
     useEffect(() => {
-        if (draft) {
-            setTitle(draft.title);
-            setDescription(draft.description ?? "");
-            setMass(draft.mass !== null ? String(draft.mass) : "");
-            setLuminosity(draft.luminosity !== null ? String(draft.luminosity) : "");
-        }
+        document.title = draft ? "Публикация класса" : "Создание черновика класса";
     }, [draft]);
 
     const handleFile = (setter: (file: File | null) => void) => (event: ChangeEvent<HTMLInputElement>) => {
         setter(event.target.files?.[0] ?? null);
     };
 
-    const handleNext = () => {
+    const handleCreate = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
         dispatch(
             createDraftStarClass({
                 title: title.trim(),
@@ -54,7 +78,8 @@ export const AddPage: FC = () => {
         );
     };
 
-    const handlePublish = async () => {
+    const handlePublish = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
         try {
             const published = await dispatch(
                 publishDraftStarClass({
@@ -69,91 +94,150 @@ export const AddPage: FC = () => {
         }
     };
 
-    const canCreate = !draft && title.trim().length >= 3;
-    const canPublish =
-        !!draft &&
-        description.trim().length >= 3 &&
-        mass.trim() !== "" &&
-        luminosity.trim() !== "" &&
-        Number.isFinite(parseNumber(mass)) &&
-        Number.isFinite(parseNumber(luminosity));
+    const previewImage = imagePreview ?? (draft ? resolveImageUrl(draft.imageUrl) : DEFAULT_IMAGE_URL);
+    const previewVideo = videoPreview ?? (draft ? resolveVideoUrl(draft.videoUrl) : DEFAULT_VIDEO_URL);
+
+    const mediaField = (
+        <div className="field media-field">
+            <label>Медиа</label>
+
+            <div className="media-item">
+                <img className="media-preview-img" src={previewImage} alt="" />
+                <input
+                    type="file"
+                    id="photoInput"
+                    name="photo"
+                    accept="image/*"
+                    className="media-file-input"
+                    onChange={handleFile(setImage)}
+                />
+                <label htmlFor="photoInput" className="media-btn">
+                    Фото
+                    <PlusIcon />
+                </label>
+            </div>
+
+            <div className="media-item">
+                <video
+                    key={previewVideo}
+                    className="media-preview-video"
+                    src={previewVideo}
+                    muted
+                    loop
+                    autoPlay
+                    playsInline
+                />
+                <input
+                    type="file"
+                    id="videoInput"
+                    name="video"
+                    accept="video/*"
+                    className="media-file-input"
+                    onChange={handleFile(setVideo)}
+                />
+                <label htmlFor="videoInput" className="media-btn">
+                    Видео
+                    <PlusIcon />
+                </label>
+            </div>
+        </div>
+    );
 
     return (
         <section className="form-screen">
-            <h1 className="form-title">Новый спектральный класс</h1>
-
-            {error && <Alert variant="danger">{error}</Alert>}
-
-            <div className="form-body">
-                <h2 className="form-section">Медиа</h2>
-
-                <Form.Group controlId="title" className="form-group-dark">
-                    <Form.Label>Название</Form.Label>
-                    <Form.Control
-                        type="text"
-                        value={title}
-                        onChange={(event: ChangeEvent<HTMLInputElement>) => setTitle(event.target.value)}
-                        placeholder="Спектральный класс X"
-                        disabled={!!draft}
-                    />
-                </Form.Group>
-
-                {draft ? (
-                    <div className="draft-preview">
-                        <MediaImage className="draft-preview-img" src={draft.imageUrl} alt={draft.title} />
-                        <p className="draft-note">Черновик создан. Заполните информацию ниже и опубликуйте.</p>
-                    </div>
-                ) : (
-                    <>
-                        <Form.Group controlId="image" className="form-group-dark">
-                            <Form.Label>Изображение</Form.Label>
-                            <Form.Control type="file" accept="image/*" onChange={handleFile(setImage)} />
-                        </Form.Group>
-                        <Form.Group controlId="video" className="form-group-dark">
-                            <Form.Label>Короткое видео</Form.Label>
-                            <Form.Control type="file" accept="video/*" onChange={handleFile(setVideo)} />
-                        </Form.Group>
-                        <Button className="btn-gold form-submit" disabled={!canCreate} onClick={handleNext}>
-                            Далее
-                        </Button>
-                    </>
+            <div className="form-panel">
+                {error && (
+                    <Alert variant="danger" className="form-alert">
+                        {error}
+                    </Alert>
                 )}
 
-                {draft && (
+                {!draft ? (
                     <>
-                        <h2 className="form-section">Информация</h2>
+                        <h1 className="form-title">
+                            Создание черновика
+                            <br />
+                            класса
+                        </h1>
 
-                        <Form.Group controlId="description" className="form-group-dark">
-                            <Form.Label>Краткое описание</Form.Label>
-                            <Form.Control
-                                as="textarea"
-                                rows={4}
-                                maxLength={500}
-                                value={description}
-                                onChange={(event: ChangeEvent<HTMLTextAreaElement>) => setDescription(event.target.value)}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="mass" className="form-group-dark">
-                            <Form.Label>Масса, M⨀</Form.Label>
-                            <Form.Control
-                                type="text"
-                                inputMode="decimal"
-                                value={mass}
-                                onChange={(event: ChangeEvent<HTMLInputElement>) => setMass(event.target.value)}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="luminosity" className="form-group-dark">
-                            <Form.Label>Светимость, L⨀</Form.Label>
-                            <Form.Control
-                                type="text"
-                                inputMode="decimal"
-                                value={luminosity}
-                                onChange={(event: ChangeEvent<HTMLInputElement>) => setLuminosity(event.target.value)}
-                            />
-                        </Form.Group>
-                        <Button className="btn-gold form-submit" disabled={!canPublish} onClick={handlePublish}>
-                            Опубликовать
-                        </Button>
+                        <form onSubmit={handleCreate}>
+                            {mediaField}
+
+                            <div className="field">
+                                <label htmlFor="name">Название</label>
+                                <input
+                                    type="text"
+                                    id="name"
+                                    name="title"
+                                    placeholder="Спектральный класс O"
+                                    value={title}
+                                    onChange={(event: ChangeEvent<HTMLInputElement>) => setTitle(event.target.value)}
+                                    required
+                                />
+                            </div>
+
+                            <button className="save-btn" type="submit">
+                                Далее
+                            </button>
+                        </form>
+                    </>
+                ) : (
+                    <>
+                        <h1 className="form-title">
+                            Публикация
+                            <br />
+                            класса
+                        </h1>
+
+                        <form onSubmit={handlePublish}>
+                            {mediaField}
+
+                            <div className="field">
+                                <label htmlFor="name">Название</label>
+                                <input type="text" id="name" value={draft.title} readOnly />
+                            </div>
+
+                            <div className="field">
+                                <label htmlFor="desc">Краткое описание</label>
+                                <textarea
+                                    id="desc"
+                                    name="description"
+                                    placeholder="Спектральный класс O - самые горячие, массивные и яркие звёзды."
+                                    value={description}
+                                    onChange={(event: ChangeEvent<HTMLTextAreaElement>) => setDescription(event.target.value)}
+                                />
+                            </div>
+
+                            <div className="field">
+                                <label htmlFor="mass">Средняя масса (M⨀)</label>
+                                <input
+                                    type="text"
+                                    id="mass"
+                                    name="mass"
+                                    placeholder="25"
+                                    value={mass}
+                                    onChange={(event: ChangeEvent<HTMLInputElement>) => setMass(event.target.value)}
+                                    required
+                                />
+                            </div>
+
+                            <div className="field">
+                                <label htmlFor="luminosity">Средняя светимость (L⨀)</label>
+                                <input
+                                    type="text"
+                                    id="luminosity"
+                                    name="luminosity"
+                                    placeholder="80 000"
+                                    value={luminosity}
+                                    onChange={(event: ChangeEvent<HTMLInputElement>) => setLuminosity(event.target.value)}
+                                    required
+                                />
+                            </div>
+
+                            <button className="save-btn" type="submit">
+                                Опубликовать
+                            </button>
+                        </form>
                     </>
                 )}
             </div>
